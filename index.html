@@ -23,47 +23,26 @@
     color: rgb(0,0,0);
     position: relative;
   }
-
   #power-map {
     width: 100%;
   }
-
   #svg-container, #svg-fallback {
     display: none;
+    margin: 0 auto;
+    width: 600px;
   }
-
   #type-icon {
     display: none;
   }
-
   .map_btn use,
   .map_btn text {
     font-weight: bold;
     cursor: pointer;
   }
-
-  /* @-webkit-keyframes myclicker {
-    from {fill: green;opacity:0.1;}
-    to {fill: blue;opacity:0.6;}
-  }
-
-  @-moz-keyframes myclicker {
-    from {fill: green;opacity:0.1;}
-    to {fill: blue;opacity:0.6;}
-  }
-*/
-  /*@keyframes myclicker {
-    0% {opacity: 0;}
-    50% {opacity: 1;}
-    100% {opacity: 0;}
-  }
-
-  .clicker {
-    animation: myclicker 2s ease infinite;
-  }*/
-
   h2 {
     text-align: center;
+    padding: 10px;
+    background-color: rgb(195, 228, 237);
   }
   #info-table {
     font-size: 12px;
@@ -71,15 +50,41 @@
     position: absolute;
     top: 30px;
     left: 10px;
-    background-color: white;
+    background-color: rgb(255,255,255);
+    background-color: rgba(255,255,255,0.5);
     z-index: 10;
+    border: 1px solid rgb(180,180,180);
+    border-radius: 4px 4px 4px 4px;
+    width: 360px;
   }
-
-  table .head {
+  .close-info {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: rgb(255,255,255);
+    border: solid 1px rgb(255,255,255);
+    top: 0;
+    right: 0;
+    margin: 2px;
+    text-align: center;
+    line-height: 18px;
+    cursor: pointer;
+  }
+  #info-table h3 {
+    color: rgb(255,255,255);
+    background-color: rgb(33,33,33);
+    padding: 4px;
+  }
+  #info-table table {
+    width: 100%;
+  }
+  #info-table table .head {
     font-weight: bold;
   }
-  td.val {
-    width: 58%;
+  #info-table td.head {
+    width: 40%;
+    vertical-align: middle;
   }
 
 </style>
@@ -89,7 +94,9 @@
     Power Stations in Mauritius and Rodrigues
   </h2>
   <div id="info-table">
-    <table width="240" cellpadding="10" cellspacing="10">
+    <h3>info</h3>
+    <div class="close-info">x</div>
+    <table cellpadding="10" cellspacing="10">
       <tr class="stat-name">
         <td class="head">Name</td>
         <td class="val"></td>
@@ -1299,21 +1306,57 @@ window.initial_state = true;
 jQuery(document).ready(function(){
   var elem = document.createElement( "canvas" );
   if (elem.getContext && elem.getContext("2d")) {
-      jQuery("#svg-container").slideDown();
+      jQuery("#svg-container").slideDown(100);
   } else {
-      jQuery("#svg-fallback").slideDown();
+      jQuery("#svg-fallback").slideDown(100);
   }
 
-  jQuery(".map_btn use, .map_btn text").click(function(){
+  jQuery(".map_btn use, .map_btn text").click(function(e){
     if(window.initial_state) {
       window.initial_state = false;
+      var parentOffset = $('#svg-container').offset(); 
+      var relX = e.pageX - parentOffset.left;
+      var relY = e.pageY - parentOffset.top;
+      console.log(relX, relY);
+      if(relX > 240) {
+        relX = 240;
+      } else {
+        relX = 10
+      }
+
+      if(relY > 360) {
+        relY -= 200;
+      } else {
+        relY += 40;
+      }
+      jQuery("#info-table").css({'top' : relY + 'px', 'left' : relX + 'px'});
       jQuery(".map_btn use, .map_btn text").unbind("click");
       update_table($(this).attr("class").trim());
-      jQuery("#info-table").slideDown();
-      jQuery(".map_btn use, .map_btn text").click(function(){
+      jQuery("#info-table").slideDown(100);
+      jQuery(".map_btn use, .map_btn text").click(function(e){
         update_table($(this).attr("class").trim());
+        jQuery("#info-table").slideDown(100);
+        var parentOffset = $('#svg-container').offset(); 
+        var relX = e.pageX - parentOffset.left;
+        var relY = e.pageY - parentOffset.top;
+        if(relX > 240) {
+          relX = 230;
+        } else {
+          relX = 10
+        }
+
+        if(relY > 360) {
+          relY -= 200;
+        } else {
+          relY += 40;
+        }
+        jQuery("#info-table").animate({'top' : relY + 'px', 'left' : relX + 'px'}, 200);
       })
     }
+  });
+
+  jQuery('.close-info').click(function(){
+    jQuery('#info-table').slideUp(100);
   });
 });
 
